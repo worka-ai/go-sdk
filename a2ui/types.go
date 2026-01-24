@@ -125,6 +125,10 @@ type Component struct {
 	TextField      *TextFieldProps      `json:"TextField,omitempty"`
 	Text           *TextProps           `json:"Text,omitempty"`
 	Video          *VideoProps          `json:"Video,omitempty"`
+	Timeline       *TimelineProps       `json:"Timeline,omitempty"`
+	TimelineItem   *TimelineItemProps   `json:"TimelineItem,omitempty"`
+	TimelineGroup  *TimelineGroupProps  `json:"TimelineGroup,omitempty"`
+	TimelineLane   *TimelineLaneProps   `json:"TimelineLane,omitempty"`
 }
 
 func AudioPlayerComponent(props AudioPlayerProps) Component { return Component{AudioPlayer: &props} }
@@ -151,6 +155,18 @@ func TextFieldComponent(props TextFieldProps) Component {
 }
 func TextComponent(props TextProps) Component   { return Component{Text: &props} }
 func VideoComponent(props VideoProps) Component { return Component{Video: &props} }
+func TimelineComponent(props TimelineProps) Component {
+	return Component{Timeline: &props}
+}
+func TimelineItemComponent(props TimelineItemProps) Component {
+	return Component{TimelineItem: &props}
+}
+func TimelineGroupComponent(props TimelineGroupProps) Component {
+	return Component{TimelineGroup: &props}
+}
+func TimelineLaneComponent(props TimelineLaneProps) Component {
+	return Component{TimelineLane: &props}
+}
 
 // Widget property definitions.
 type RowProps struct {
@@ -258,6 +274,44 @@ type AudioPlayerProps struct {
 
 type VideoProps struct {
 	URL StringRef `json:"url"`
+}
+
+type TimelineProps struct {
+	Children      ComponentChildren `json:"children"`
+	Orientation   *string           `json:"orientation,omitempty"`
+	Alignment     *string           `json:"alignment,omitempty"`
+	AutoFollow    *BoolRef          `json:"autoFollow,omitempty"`
+	LaneMode      *string           `json:"laneMode,omitempty"`
+	CurrentItemID *StringRef        `json:"currentItemId,omitempty"`
+}
+
+type TimelineItemProps struct {
+	ItemID       string     `json:"itemId"`
+	Title        *StringRef `json:"title,omitempty"`
+	Subtitle     *StringRef `json:"subtitle,omitempty"`
+	Timestamp    *StringRef `json:"timestamp,omitempty"`
+	Kind         *string    `json:"kind,omitempty"`
+	State        *string    `json:"state,omitempty"`
+	Severity     *string    `json:"severity,omitempty"`
+	Icon         *StringRef `json:"icon,omitempty"`
+	ContentChild *string    `json:"contentChild,omitempty"`
+	Action       *Action    `json:"action,omitempty"`
+}
+
+type TimelineGroupProps struct {
+	GroupID    string            `json:"groupId"`
+	Title      *StringRef        `json:"title,omitempty"`
+	Summary    *StringRef        `json:"summary,omitempty"`
+	Children   ComponentChildren `json:"children"`
+	Collapsed  *BoolRef          `json:"collapsed,omitempty"`
+	BadgeCount *NumberRef        `json:"badgeCount,omitempty"`
+	GroupState *string           `json:"groupState,omitempty"`
+}
+
+type TimelineLaneProps struct {
+	LaneID   string            `json:"laneId"`
+	Title    *StringRef        `json:"title,omitempty"`
+	Children ComponentChildren `json:"children"`
 }
 
 // SurfaceUpdate updates the surface with components.

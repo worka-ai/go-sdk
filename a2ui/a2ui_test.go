@@ -147,6 +147,48 @@ func TestA2UIComponentSerialization(t *testing.T) {
 		URL: StringLiteral("https://example.com/video.mp4"),
 	}))
 	assertJSONEqual(t, video, `{"id":"video","component":{"Video":{"url":{"literalString":"https://example.com/video.mp4"}}}}`)
+
+	timeline := Entry("timeline", TimelineComponent(TimelineProps{
+		Children:      ChildrenExplicit("item-1", "item-2"),
+		Orientation:   strPtr("vertical"),
+		Alignment:     strPtr("alternate"),
+		AutoFollow:    boolRefPtr(BoolLiteral(true)),
+		LaneMode:      strPtr("single"),
+		CurrentItemID: refPtr(StringLiteral("item-2")),
+	}))
+	assertJSONEqual(t, timeline, `{"id":"timeline","component":{"Timeline":{"children":{"explicitList":["item-1","item-2"]},"orientation":"vertical","alignment":"alternate","autoFollow":{"literalBoolean":true},"laneMode":"single","currentItemId":{"literalString":"item-2"}}}}`)
+
+	timelineItem := Entry("item-1", TimelineItemComponent(TimelineItemProps{
+		ItemID:       "item-1",
+		Title:        refPtr(StringLiteral("Step Started")),
+		Subtitle:     refPtr(StringLiteral("Preparing data")),
+		Timestamp:    refPtr(StringLiteral("2026-01-24T00:00:00Z")),
+		Kind:         strPtr("step"),
+		State:        strPtr("running"),
+		Severity:     strPtr("info"),
+		Icon:         refPtr(StringLiteral("bolt")),
+		ContentChild: strPtr("detail"),
+		Action:       actionPtr(NewAction("timeline.focus_item")),
+	}))
+	assertJSONEqual(t, timelineItem, `{"id":"item-1","component":{"TimelineItem":{"itemId":"item-1","title":{"literalString":"Step Started"},"subtitle":{"literalString":"Preparing data"},"timestamp":{"literalString":"2026-01-24T00:00:00Z"},"kind":"step","state":"running","severity":"info","icon":{"literalString":"bolt"},"contentChild":"detail","action":{"name":"timeline.focus_item"}}}}`)
+
+	timelineGroup := Entry("group-1", TimelineGroupComponent(TimelineGroupProps{
+		GroupID:    "group-1",
+		Title:      refPtr(StringLiteral("Task Group")),
+		Summary:    refPtr(StringLiteral("2 tasks")),
+		Children:   ChildrenExplicit("item-1"),
+		Collapsed:  boolRefPtr(BoolLiteral(false)),
+		BadgeCount: numberRefPtr(NumberLiteral(2)),
+		GroupState: strPtr("running"),
+	}))
+	assertJSONEqual(t, timelineGroup, `{"id":"group-1","component":{"TimelineGroup":{"groupId":"group-1","title":{"literalString":"Task Group"},"summary":{"literalString":"2 tasks"},"children":{"explicitList":["item-1"]},"collapsed":{"literalBoolean":false},"badgeCount":{"literalNumber":2},"groupState":"running"}}}}`)
+
+	timelineLane := Entry("lane-1", TimelineLaneComponent(TimelineLaneProps{
+		LaneID:   "lane-1",
+		Title:    refPtr(StringLiteral("Lane A")),
+		Children: ChildrenExplicit("item-1"),
+	}))
+	assertJSONEqual(t, timelineLane, `{"id":"lane-1","component":{"TimelineLane":{"laneId":"lane-1","title":{"literalString":"Lane A"},"children":{"explicitList":["item-1"]}}}}`)
 }
 
 func TestA2uiMessages(t *testing.T) {
@@ -165,5 +207,7 @@ func strPtr(v string) *string     { return &v }
 func boolPtr(v bool) *bool        { return &v }
 func floatPtr(v float64) *float64 { return &v }
 
-func refPtr(ref StringRef) *StringRef { return &ref }
-func actionPtr(action Action) *Action { return &action }
+func refPtr(ref StringRef) *StringRef       { return &ref }
+func actionPtr(action Action) *Action       { return &action }
+func boolRefPtr(ref BoolRef) *BoolRef       { return &ref }
+func numberRefPtr(ref NumberRef) *NumberRef { return &ref }
