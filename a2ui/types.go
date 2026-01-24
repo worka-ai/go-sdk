@@ -37,7 +37,7 @@ func BoolPath(path string) BoolRef   { return BoolRef{Path: &path} }
 // StringArrayRef represents a bound or literal string array.
 type StringArrayRef struct {
 	Path         *string  `json:"path,omitempty"`
-	LiteralArray []string `json:"literalArray,omitempty"`
+	LiteralArray []string `json:"literalStringArray,omitempty"`
 }
 
 func StringArrayLiteral(values ...string) StringArrayRef { return StringArrayRef{LiteralArray: values} }
