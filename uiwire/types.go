@@ -1,9 +1,9 @@
-// Package a2ui provides typed builders for the default A2UI catalog.
+// Package uiwire provides typed builders for the default UI wire catalog.
 //
-// It mirrors the default A2UI widgets supported by GenUI:
+// It mirrors the default UI wire widgets supported by GenUI:
 // AudioPlayer, Button, Card, CheckBox, Column, DateTimeInput, Divider, Icon,
 // Image, List, Modal, MultipleChoice, Row, Slider, Tabs, TextField, Text, Video.
-package a2ui
+package uiwire
 
 import "encoding/json"
 
@@ -346,8 +346,8 @@ type DeleteSurface struct {
 	SurfaceID string `json:"surfaceId"`
 }
 
-// A2uiMessage encodes a surface message.
-type A2uiMessage struct {
+// SurfaceMessage encodes a surface message.
+type SurfaceMessage struct {
 	SurfaceUpdate   *SurfaceUpdate   `json:"surfaceUpdate,omitempty"`
 	BeginRendering  *BeginRendering  `json:"beginRendering,omitempty"`
 	DataModelUpdate *DataModelUpdate `json:"dataModelUpdate,omitempty"`

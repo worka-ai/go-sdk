@@ -1,4 +1,4 @@
-package a2ui
+package uiwire
 
 import (
 	"encoding/json"
@@ -25,7 +25,7 @@ func assertJSONEqual(t *testing.T, got any, want string) {
 	}
 }
 
-func TestA2UIComponentSerialization(t *testing.T) {
+func TestUI wireComponentSerialization(t *testing.T) {
 	text := Entry("text", TextComponent(TextProps{
 		Text:      StringLiteral("Hello"),
 		UsageHint: strPtr("h1"),
@@ -191,15 +191,15 @@ func TestA2UIComponentSerialization(t *testing.T) {
 	assertJSONEqual(t, timelineLane, `{"id":"lane-1","component":{"TimelineLane":{"laneId":"lane-1","title":{"literalString":"Lane A"},"children":{"explicitList":["item-1"]}}}}`)
 }
 
-func TestA2uiMessages(t *testing.T) {
+func TestSurfaceMessages(t *testing.T) {
 	surface := SurfaceUpdate{SurfaceID: "surface-1", Components: []ComponentEntry{
 		Entry("text", TextComponent(TextProps{Text: StringLiteral("Hello")})),
 	}}
-	msg := A2uiMessage{SurfaceUpdate: &surface}
+	msg := SurfaceMessage{SurfaceUpdate: &surface}
 	assertJSONEqual(t, msg, `{"surfaceUpdate":{"surfaceId":"surface-1","components":[{"id":"text","component":{"Text":{"text":{"literalString":"Hello"}}}}]}}`)
 
 	data := json.RawMessage(`{"hello":"world"}`)
-	update := A2uiMessage{DataModelUpdate: &DataModelUpdate{SurfaceID: "surface-2", Contents: data}}
+	update := SurfaceMessage{DataModelUpdate: &DataModelUpdate{SurfaceID: "surface-2", Contents: data}}
 	assertJSONEqual(t, update, `{"dataModelUpdate":{"surfaceId":"surface-2","contents":{"hello":"world"}}}`)
 }
 

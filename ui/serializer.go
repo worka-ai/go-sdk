@@ -1,10 +1,10 @@
 package ui
 
-import "github.com/modelcontextprotocol/go-sdk/a2ui"
+import "github.com/modelcontextprotocol/go-sdk/uiwire"
 
 type RenderResult struct {
 	Root       string
-	Components []a2ui.ComponentEntry
+	Components []uiwire.ComponentEntry
 }
 
 func Render(root Widget) RenderResult {
@@ -15,7 +15,7 @@ func Render(root Widget) RenderResult {
 
 type serializer struct {
 	counter    int
-	components []a2ui.ComponentEntry
+	components []uiwire.ComponentEntry
 }
 
 func (s *serializer) nextID() string {
@@ -39,16 +39,16 @@ func itoa(value int) string {
 	return string(buf)
 }
 
-func (s *serializer) renderChildren(children Children) a2ui.ComponentChildren {
+func (s *serializer) renderChildren(children Children) uiwire.ComponentChildren {
 	if children.Template != nil {
 		templateID := s.renderWidget(children.Template.Template)
-		return a2ui.ChildrenTemplate(templateID, children.Template.DataBinding)
+		return uiwire.ChildrenTemplate(templateID, children.Template.DataBinding)
 	}
 	ids := make([]string, 0, len(children.Items))
 	for _, child := range children.Items {
 		ids = append(ids, s.renderWidget(child))
 	}
-	return a2ui.ChildrenExplicit(ids...)
+	return uiwire.ChildrenExplicit(ids...)
 }
 
 func (s *serializer) renderWidget(widget Widget) string {
@@ -57,7 +57,7 @@ func (s *serializer) renderWidget(widget Widget) string {
 		id = s.nextID()
 	}
 	component := s.renderKind(widget.Kind)
-	entry := a2ui.Entry(id, component)
+	entry := uiwire.Entry(id, component)
 	if widget.Weight != nil {
 		entry = entry.WithWeight(*widget.Weight)
 	}
@@ -65,67 +65,67 @@ func (s *serializer) renderWidget(widget Widget) string {
 	return id
 }
 
-func (s *serializer) renderKind(kind WidgetKind) a2ui.Component {
+func (s *serializer) renderKind(kind WidgetKind) uiwire.Component {
 	switch v := kind.(type) {
 	case Text:
-		props := a2ui.TextProps{Text: toStringRef(v.Text)}
+		props := uiwire.TextProps{Text: toStringRef(v.Text)}
 		if v.UsageHint != "" {
 			props.UsageHint = v.UsageHint
 		}
-		return a2ui.TextComponent(props)
+		return uiwire.TextComponent(props)
 	case Image:
-		props := a2ui.ImageProps{URL: toStringRef(v.URL)}
+		props := uiwire.ImageProps{URL: toStringRef(v.URL)}
 		if v.Fit != "" {
 			props.Fit = v.Fit
 		}
 		if v.UsageHint != "" {
 			props.UsageHint = v.UsageHint
 		}
-		return a2ui.ImageComponent(props)
+		return uiwire.ImageComponent(props)
 	case Icon:
-		return a2ui.IconComponent(a2ui.IconProps{Name: toStringRef(v.Name)})
+		return uiwire.IconComponent(uiwire.IconProps{Name: toStringRef(v.Name)})
 	case Divider:
-		props := a2ui.DividerProps{}
+		props := uiwire.DividerProps{}
 		if v.Axis != "" {
 			props.Axis = v.Axis
 		}
-		return a2ui.DividerComponent(props)
+		return uiwire.DividerComponent(props)
 	case Row:
-		props := a2ui.RowProps{Children: s.renderChildren(v.Children)}
+		props := uiwire.RowProps{Children: s.renderChildren(v.Children)}
 		if v.Distribution != "" {
 			props.Distribution = v.Distribution
 		}
 		if v.Alignment != "" {
 			props.Alignment = v.Alignment
 		}
-		return a2ui.RowComponent(props)
+		return uiwire.RowComponent(props)
 	case Column:
-		props := a2ui.ColumnProps{Children: s.renderChildren(v.Children)}
+		props := uiwire.ColumnProps{Children: s.renderChildren(v.Children)}
 		if v.Distribution != "" {
 			props.Distribution = v.Distribution
 		}
 		if v.Alignment != "" {
 			props.Alignment = v.Alignment
 		}
-		return a2ui.ColumnComponent(props)
+		return uiwire.ColumnComponent(props)
 	case List:
-		props := a2ui.ListProps{Children: s.renderChildren(v.Children)}
+		props := uiwire.ListProps{Children: s.renderChildren(v.Children)}
 		if v.Direction != "" {
 			props.Direction = v.Direction
 		}
 		if v.Alignment != "" {
 			props.Alignment = v.Alignment
 		}
-		return a2ui.ListComponent(props)
+		return uiwire.ListComponent(props)
 	case Button:
 		childID := s.renderWidget(v.Child)
-		props := a2ui.ButtonProps{Child: childID, Action: toAction(v.Action)}
+		props := uiwire.ButtonProps{Child: childID, Action: toAction(v.Action)}
 		if v.Primary != nil {
 			props.Primary = v.Primary
 		}
-		return a2ui.ButtonComponent(props)
+		return uiwire.ButtonComponent(props)
 	case TextField:
-		props := a2ui.TextFieldProps{}
+		props := uiwire.TextFieldProps{}
 		if v.Text != nil {
 			props.Text = ptrStringRef(toStringRef(*v.Text))
 		}
@@ -141,46 +141,46 @@ func (s *serializer) renderKind(kind WidgetKind) a2ui.Component {
 		if v.OnSubmittedAction != nil {
 			props.OnSubmittedAction = ptrAction(toAction(*v.OnSubmittedAction))
 		}
-		return a2ui.TextFieldComponent(props)
+		return uiwire.TextFieldComponent(props)
 	case CheckBox:
-		return a2ui.CheckBoxComponent(a2ui.CheckBoxProps{
+		return uiwire.CheckBoxComponent(uiwire.CheckBoxProps{
 			Label: toStringRef(v.Label),
 			Value: toBoolRef(v.Value),
 		})
 	case Card:
 		childID := s.renderWidget(v.Child)
-		return a2ui.CardComponent(a2ui.CardProps{Child: childID})
+		return uiwire.CardComponent(uiwire.CardProps{Child: childID})
 	case Modal:
 		entryID := s.renderWidget(v.EntryPoint)
 		contentID := s.renderWidget(v.Content)
-		return a2ui.ModalComponent(a2ui.ModalProps{
+		return uiwire.ModalComponent(uiwire.ModalProps{
 			EntryPointChild: entryID,
 			ContentChild:    contentID,
 		})
 	case Tabs:
-		items := make([]a2ui.TabItemProps, 0, len(v.Items))
+		items := make([]uiwire.TabItemProps, 0, len(v.Items))
 		for _, item := range v.Items {
 			childID := s.renderWidget(item.Child)
-			items = append(items, a2ui.TabItemProps{Title: toStringRef(item.Title), Child: childID})
+			items = append(items, uiwire.TabItemProps{Title: toStringRef(item.Title), Child: childID})
 		}
-		return a2ui.TabsComponent(a2ui.TabsProps{TabItems: items})
+		return uiwire.TabsComponent(uiwire.TabsProps{TabItems: items})
 	case MultipleChoice:
-		opts := make([]a2ui.ChoiceOptionProps, 0, len(v.Options))
+		opts := make([]uiwire.ChoiceOptionProps, 0, len(v.Options))
 		for _, option := range v.Options {
-			opts = append(opts, a2ui.ChoiceOptionProps{Label: toStringRef(option.Label), Value: option.Value})
+			opts = append(opts, uiwire.ChoiceOptionProps{Label: toStringRef(option.Label), Value: option.Value})
 		}
-		props := a2ui.MultipleChoiceProps{Selections: toStringArrayRef(v.Selections), Options: opts}
+		props := uiwire.MultipleChoiceProps{Selections: toStringArrayRef(v.Selections), Options: opts}
 		if v.MaxAllowedSelections != nil {
 			props.MaxAllowedSelections = v.MaxAllowedSelections
 		}
-		return a2ui.MultipleChoiceComponent(props)
+		return uiwire.MultipleChoiceComponent(props)
 	case Slider:
-		props := a2ui.SliderProps{Value: toNumberRef(v.Value)}
+		props := uiwire.SliderProps{Value: toNumberRef(v.Value)}
 		props.MinValue = v.MinValue
 		props.MaxValue = v.MaxValue
-		return a2ui.SliderComponent(props)
+		return uiwire.SliderComponent(props)
 	case DateTimeInput:
-		props := a2ui.DateTimeInputProps{Value: toStringRef(v.Value)}
+		props := uiwire.DateTimeInputProps{Value: toStringRef(v.Value)}
 		if v.EnableDate != nil {
 			props.EnableDate = v.EnableDate
 		}
@@ -193,13 +193,13 @@ func (s *serializer) renderKind(kind WidgetKind) a2ui.Component {
 		if v.LastDate != "" {
 			props.LastDate = v.LastDate
 		}
-		return a2ui.DateTimeInputComponent(props)
+		return uiwire.DateTimeInputComponent(props)
 	case AudioPlayer:
-		return a2ui.AudioPlayerComponent(a2ui.AudioPlayerProps{URL: toStringRef(v.URL)})
+		return uiwire.AudioPlayerComponent(uiwire.AudioPlayerProps{URL: toStringRef(v.URL)})
 	case Video:
-		return a2ui.VideoComponent(a2ui.VideoProps{URL: toStringRef(v.URL)})
+		return uiwire.VideoComponent(uiwire.VideoProps{URL: toStringRef(v.URL)})
 	case Timeline:
-		props := a2ui.TimelineProps{Children: s.renderChildren(v.Children)}
+		props := uiwire.TimelineProps{Children: s.renderChildren(v.Children)}
 		if v.Orientation != "" {
 			props.Orientation = v.Orientation
 		}
@@ -215,9 +215,9 @@ func (s *serializer) renderKind(kind WidgetKind) a2ui.Component {
 		if v.CurrentItemID != nil {
 			props.CurrentItemID = ptrStringRef(toStringRef(*v.CurrentItemID))
 		}
-		return a2ui.TimelineComponent(props)
+		return uiwire.TimelineComponent(props)
 	case TimelineItem:
-		props := a2ui.TimelineItemProps{}
+		props := uiwire.TimelineItemProps{}
 		if v.ItemID != "" {
 			props.ItemID = v.ItemID
 		}
@@ -248,9 +248,9 @@ func (s *serializer) renderKind(kind WidgetKind) a2ui.Component {
 		if v.Action != nil {
 			props.Action = ptrAction(toAction(*v.Action))
 		}
-		return a2ui.TimelineItemComponent(props)
+		return uiwire.TimelineItemComponent(props)
 	case TimelineGroup:
-		props := a2ui.TimelineGroupProps{
+		props := uiwire.TimelineGroupProps{
 			GroupID:  v.GroupID,
 			Children: s.renderChildren(v.Children),
 		}
@@ -269,76 +269,76 @@ func (s *serializer) renderKind(kind WidgetKind) a2ui.Component {
 		if v.GroupState != "" {
 			props.GroupState = v.GroupState
 		}
-		return a2ui.TimelineGroupComponent(props)
+		return uiwire.TimelineGroupComponent(props)
 	case TimelineLane:
-		props := a2ui.TimelineLaneProps{LaneID: v.LaneID, Children: s.renderChildren(v.Children)}
+		props := uiwire.TimelineLaneProps{LaneID: v.LaneID, Children: s.renderChildren(v.Children)}
 		if v.Title != nil {
 			props.Title = ptrStringRef(toStringRef(*v.Title))
 		}
-		return a2ui.TimelineLaneComponent(props)
+		return uiwire.TimelineLaneComponent(props)
 	default:
-		return a2ui.Component{}
+		return uiwire.Component{}
 	}
 }
 
-func toStringRef(value StringValue) a2ui.StringRef {
+func toStringRef(value StringValue) uiwire.StringRef {
 	if value.path != nil {
-		return a2ui.StringRef{Path: *value.path}
+		return uiwire.StringRef{Path: *value.path}
 	}
-	return a2ui.StringRef{LiteralString: value.literal}
+	return uiwire.StringRef{LiteralString: value.literal}
 }
 
-func toNumberRef(value NumberValue) a2ui.NumberRef {
+func toNumberRef(value NumberValue) uiwire.NumberRef {
 	if value.path != nil {
-		return a2ui.NumberRef{Path: *value.path}
+		return uiwire.NumberRef{Path: *value.path}
 	}
-	return a2ui.NumberRef{LiteralNumber: value.literal}
+	return uiwire.NumberRef{LiteralNumber: value.literal}
 }
 
-func toBoolRef(value BoolValue) a2ui.BoolRef {
+func toBoolRef(value BoolValue) uiwire.BoolRef {
 	if value.path != nil {
-		return a2ui.BoolRef{Path: *value.path}
+		return uiwire.BoolRef{Path: *value.path}
 	}
-	return a2ui.BoolRef{LiteralBoolean: value.literal}
+	return uiwire.BoolRef{LiteralBoolean: value.literal}
 }
 
-func toStringArrayRef(value StringArrayValue) a2ui.StringArrayRef {
+func toStringArrayRef(value StringArrayValue) uiwire.StringArrayRef {
 	if value.path != nil {
-		return a2ui.StringArrayRef{Path: *value.path}
+		return uiwire.StringArrayRef{Path: *value.path}
 	}
-	return a2ui.StringArrayRef{LiteralArray: value.literal}
+	return uiwire.StringArrayRef{LiteralArray: value.literal}
 }
 
-func toAction(action Action) a2ui.Action {
+func toAction(action Action) uiwire.Action {
 	if len(action.Context) == 0 {
-		return a2ui.NewAction(action.Name)
+		return uiwire.NewAction(action.Name)
 	}
-	entries := make([]a2ui.ActionContextEntry, 0, len(action.Context))
+	entries := make([]uiwire.ActionContextEntry, 0, len(action.Context))
 	for key, value := range action.Context {
-		entries = append(entries, a2ui.ActionContextEntry{
+		entries = append(entries, uiwire.ActionContextEntry{
 			Key:   key,
 			Value: toActionValue(value),
 		})
 	}
-	return a2ui.ActionWithContext(action.Name, entries...)
+	return uiwire.ActionWithContext(action.Name, entries...)
 }
 
-func toActionValue(value Value) a2ui.ActionValue {
+func toActionValue(value Value) uiwire.ActionValue {
 	switch value.Kind {
 	case ValuePath:
-		return a2ui.ActionValue{Path: value.Path}
+		return uiwire.ActionValue{Path: value.Path}
 	case ValueString:
-		return a2ui.ActionValue{LiteralString: &value.String}
+		return uiwire.ActionValue{LiteralString: &value.String}
 	case ValueNumber:
-		return a2ui.ActionValue{LiteralNumber: &value.Number}
+		return uiwire.ActionValue{LiteralNumber: &value.Number}
 	case ValueBool:
-		return a2ui.ActionValue{LiteralBoolean: &value.Bool}
+		return uiwire.ActionValue{LiteralBoolean: &value.Bool}
 	default:
-		return a2ui.ActionValue{}
+		return uiwire.ActionValue{}
 	}
 }
 
-func ptrStringRef(value a2ui.StringRef) *a2ui.StringRef { return &value }
-func ptrNumberRef(value a2ui.NumberRef) *a2ui.NumberRef { return &value }
-func ptrBoolRef(value a2ui.BoolRef) *a2ui.BoolRef       { return &value }
-func ptrAction(value a2ui.Action) *a2ui.Action          { return &value }
+func ptrStringRef(value uiwire.StringRef) *uiwire.StringRef { return &value }
+func ptrNumberRef(value uiwire.NumberRef) *uiwire.NumberRef { return &value }
+func ptrBoolRef(value uiwire.BoolRef) *uiwire.BoolRef       { return &value }
+func ptrAction(value uiwire.Action) *uiwire.Action          { return &value }
